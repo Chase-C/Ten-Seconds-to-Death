@@ -1,0 +1,151 @@
+# depslib dependency file v1.0
+1279290648 source:e:\projects\breklin and vallus\prototypes\mapviewer\main.cpp
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<iostream>
+	<string>
+	"base64.h"
+	"Timer.h"
+	"TMXLoader.h"
+
+1279376588 source:e:\projects\breklin and vallus\prototypes\mapviewer\base64.cpp
+	"base64.h"
+	<iostream>
+	<string>
+
+1279376671 e:\projects\breklin and vallus\prototypes\mapviewer\base64.h
+	<string>
+	<vector>
+
+1279433324 source:e:\projects\breklin and vallus\prototypes\mapviewer\tmxloader.cpp
+	"TMXLoader.h"
+
+1279431200 e:\projects\breklin and vallus\prototypes\mapviewer\tmxloader.h
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<iostream>
+	<fstream>
+	<string>
+	<vector>
+	"base64.h"
+	"tinyxml/tinyxml.h"
+
+1278847780 e:\projects\breklin and vallus\prototypes\mapviewer\tinyxml\tinyxml.h
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<assert.h>
+	<string>
+	<iostream>
+	<sstream>
+	"tinystr.h"
+
+1202843700 e:\projects\breklin and vallus\prototypes\mapviewer\tinyxml\tinystr.h
+	<assert.h>
+	<string.h>
+
+1279085068 source:e:\projects\breklin and vallus\prototypes\mapviewer\maploader.cpp
+	"MapLoader.h"
+
+1279085295 e:\projects\breklin and vallus\prototypes\mapviewer\maploader.h
+
+1279085986 source:e:\projects\breklin and vallus\prototypes\mapviewer\timer.cpp
+	"Timer.h"
+
+1279086523 e:\projects\breklin and vallus\prototypes\mapviewer\timer.h
+	<SDL/SDL.h>
+
+1202843700 source:e:\projects\breklin and vallus\prototypes\mapviewer\tinyxml\tinystr.cpp
+	"tinystr.h"
+
+1278847572 source:e:\projects\breklin and vallus\prototypes\mapviewer\tinyxml\tinyxml.cpp
+	<ctype.h>
+	<sstream>
+	<iostream>
+	"tinyxml.h"
+
+1202843700 source:e:\projects\breklin and vallus\prototypes\mapviewer\tinyxml\tinyxmlerror.cpp
+	"tinyxml.h"
+
+1278847772 source:e:\projects\breklin and vallus\prototypes\mapviewer\tinyxml\tinyxmlparser.cpp
+	<ctype.h>
+	<stddef.h>
+	"tinyxml.h"
+	<windows.h>
+
+1279085068 source:c:\documents and settings\rohin\桌面\mapviewer\maploader.cpp
+	"MapLoader.h"
+
+1279085294 c:\documents and settings\rohin\桌面\mapviewer\maploader.h
+
+1279433324 source:c:\documents and settings\rohin\桌面\mapviewer\tmxloader.cpp
+	"TMXLoader.h"
+
+1279431200 c:\documents and settings\rohin\桌面\mapviewer\tmxloader.h
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<iostream>
+	<fstream>
+	<string>
+	<vector>
+	"base64.h"
+	"tinyxml/tinyxml.h"
+
+1279376670 c:\documents and settings\rohin\桌面\mapviewer\base64.h
+	<string>
+	<vector>
+
+1278847780 c:\documents and settings\rohin\桌面\mapviewer\tinyxml\tinyxml.h
+	<ctype.h>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<assert.h>
+	<string>
+	<iostream>
+	<sstream>
+	"tinystr.h"
+
+1202843700 c:\documents and settings\rohin\桌面\mapviewer\tinyxml\tinystr.h
+	<assert.h>
+	<string.h>
+
+1279085986 source:c:\documents and settings\rohin\桌面\mapviewer\timer.cpp
+	"Timer.h"
+
+1279086522 c:\documents and settings\rohin\桌面\mapviewer\timer.h
+	<SDL/SDL.h>
+
+1279376588 source:c:\documents and settings\rohin\桌面\mapviewer\base64.cpp
+	"base64.h"
+	<iostream>
+	<string>
+
+1279290648 source:c:\documents and settings\rohin\桌面\mapviewer\main.cpp
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<iostream>
+	<string>
+	"base64.h"
+	"Timer.h"
+	"TMXLoader.h"
+
+1202843700 source:c:\documents and settings\rohin\桌面\mapviewer\tinyxml\tinystr.cpp
+	"tinystr.h"
+
+1278847572 source:c:\documents and settings\rohin\桌面\mapviewer\tinyxml\tinyxml.cpp
+	<ctype.h>
+	<sstream>
+	<iostream>
+	"tinyxml.h"
+
+1202843700 source:c:\documents and settings\rohin\桌面\mapviewer\tinyxml\tinyxmlerror.cpp
+	"tinyxml.h"
+
+1278847772 source:c:\documents and settings\rohin\桌面\mapviewer\tinyxml\tinyxmlparser.cpp
+	<ctype.h>
+	<stddef.h>
+	"tinyxml.h"
+	<windows.h>
+

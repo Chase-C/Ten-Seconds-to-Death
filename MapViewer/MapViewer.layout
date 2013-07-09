@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="TMXLoader.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="2686" topLine="108" />
+	</File>
+	<File name="TMXLoader.h" open="0" top="0" tabpos="4">
+		<Cursor position="1657" topLine="53" />
+	</File>
+	<File name="Timer.cpp" open="0" top="0" tabpos="6">
+		<Cursor position="353" topLine="0" />
+	</File>
+	<File name="base64.cpp" open="0" top="0" tabpos="2">
+		<Cursor position="3465" topLine="33" />
+	</File>
+	<File name="base64.h" open="0" top="0" tabpos="3">
+		<Cursor position="114" topLine="0" />
+	</File>
+	<File name="main.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="5913" topLine="41" />
+	</File>
+	<File name="tinyxml\tinystr.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1331" topLine="44" />
+	</File>
+	<File name="tinyxml\tinyxmlparser.cpp" open="0" top="0" tabpos="7">
+		<Cursor position="9177" topLine="363" />
+	</File>
+</CodeBlocks_layout_file>
