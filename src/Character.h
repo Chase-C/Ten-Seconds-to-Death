@@ -8,56 +8,91 @@
 class Character
 {
 public:
-	Character(cpSpace *space, float x, float y);
-	~Character();
+    enum Direction {
+        LEFT = 0, UP_LEFT, UP, UP_RIGHT, RIGHT, DOWN_RIGHT, DOWN, DOWN_LEFT
+    };
 
-    void update();
+    Character();
+	virtual ~Character();
+    virtual void Init(cpSpace *space, float x, float y, Direction d, sf::Color c) { };
+    void ReInit(float x, float y, Direction d);
+
+    enum Type {
+        FIGHTER, SHOOTER, NINJA
+    } type;
+
+    bool isDead();
+
+    void setOponent(Character *o);
+
+    virtual void update() { };
     void physUpdate();
 
-    void move(sf::Vector2f pt);
-    void attack();
+    virtual void move(Direction d) { };
+    void stop();
+    virtual void dash() { };
+    virtual void attack() { };
+    void damage(int hAmount, int sAmount, float speed, cpVect knockBack);
+
+    virtual void ult() { };
 
     cpVect getPosition();
 
-    void draw(sf::RenderWindow *window, sf::Transform trans);
+    virtual void draw(sf::RenderWindow *window, sf::Transform trans) { };
 
-private:
+protected:
+    bool dead;
+    Character *op;
 
-    void changeDirection();
+    Direction dir;
 
-    enum Direction {
-        LEFT, UP, RIGHT, DOWN
-        //UP_L, UP_R, DOWN_L, DOWN_R;
-    } dir;
+    void drawArrow(sf::RenderWindow *window, sf::Transform trans);
+    sf::Color arrowColor;
 
     enum CharacterState {
-        STANDING, WALKING, ATTACKING
+        STANDING, WALKING, ATTACKING, DASHING, DAMAGED, ULT
     } state;
 
+    cpVect baseVelocity();
+
     float maxRunVelocity;
+    float attackVelocity;
+    int attacks;
+    int attackFrames;
+    float maxDashVelocity;
+    int dashFrames;
+    float speedMod;
 
-    cpVect runDirection;
-    cpVect runPoint;
+    int health;
+    int stamina;
 
-    std::vector<cpVect> path;
-    unsigned int pathSeg;
+    sf::Time staminaTime;
+    sf::Clock staminaFillTimer;
 
-    //sf::Texture texture;
-    //sf::RenderTexture renderTexture;
-    sf::Texture texture;
-    Animation walking[4];
-    AnimatedSprite walkSprite[4];
+    size_t walkFrame;
+    sf::Texture *texture;
 
-    Animation standing[4];
-    AnimatedSprite standSprite[4];
+    Animation walking;
+    AnimatedSprite walkSprite;
 
-    Animation attacking[4];
-    AnimatedSprite attackSprite[4];
+    Animation dashing;
+    AnimatedSprite dashSprite;
+
+    Animation ulting;
+    AnimatedSprite ultSprite;
+    sf::Clock ultClock;
+    int ultLevel;
+    bool ultToggle;
 
     sf::Clock frameClock;
 
     cpBody *body;
+    cpConstraint *pivot;
+    cpConstraint *gear;
+
     std::vector<cpShape*> shapes;
+
+    friend class HUD;
 };
 
 #endif

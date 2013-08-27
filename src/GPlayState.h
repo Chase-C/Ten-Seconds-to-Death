@@ -6,11 +6,14 @@
 #include <chipmunk/chipmunk.h>
 
 #include "GameState.h"
-#include "Terrain.h"
+#include "Arena.h"
+#include "HUD.h"
 #include "InputManager.h"
-#include "AIController.h"
 #include "Character.h"
-#include "Camera.h"
+#include "Fighter.h"
+#include "Shooter.h"
+#include "Bullet.h"
+#include "Ninja.h"
 
 class GPlayState : public GameState
 {
@@ -27,29 +30,48 @@ public:
 	void Update(Engine* game);
 	void Draw(Engine* game);
 
-    Terrain *getTerrain();
+    void SetP1Type(int type);
+    void SetP2Type(int type);
 
 	static GPlayState* Instance() {
 		return &g_PlayState;
 	}
 
 protected:
-	GPlayState() { }
+    GPlayState();
 
 private:
 	static GPlayState g_PlayState;
+
+    void checkBulletCollision(Bullet *b, Character *c);
+
+    void reset();
+    bool reseting;
+    sf::Clock resetTime;
+
+    int round;
+    int p1Score;
+    int p2Score;
 
     double stepSize;
     cpSpace *space;
 
 	InputManager inputManager;
 
-	Terrain terrain;
-    Camera cam;
+	Arena arena;
+    HUD hud;
 
-    Character *player;
-    std::vector<Character*> characters;
-    std::vector<AIController*> AIs;
+    Character *player1;
+    Character *player2;
+
+    sf::Clock ultClock;
+    int ultPlayer;
+
+    sf::Font font;
+    sf::Color color;
+    sf::Text p1ScoreT;
+    sf::Text p2ScoreT;
+    sf::Text winner;
 };
 
 #endif

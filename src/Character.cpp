@@ -5,70 +5,10 @@
 
 #include "Character.h"
 #include "GPlayState.h"
-#include "Terrain.h"
+#include "Arena.h"
 
-Character::Character(cpSpace *space, float x, float y)
+Character::Character()
 {
-    if(!texture.loadFromFile("zombie.png")) {
-        fprintf(stderr, "could not load 'zombie.png'\n");
-    }
-
-    for(int i = 0; i < 4; i++) {
-        walking[i].setSpriteSheet(texture);
-        for(int j = 0; j < 8; j++)
-            walking[i].addFrame(sf::IntRect((128 * j) + 512, 256 * i, 128, 128));
-
-        walkSprite[i].setFrameTime(sf::seconds(0.12));
-        walkSprite[i].setAnimation(walking[i]);
-        walkSprite[i].setOrigin(64, 64);
-    }
-
-    for(int i = 0; i < 4; i++) {
-        standing[i].setSpriteSheet(texture);
-        for(int j = 0; j < 4; j++)
-            standing[i].addFrame(sf::IntRect(128 * j, 256 * i, 128, 128));
-
-        standSprite[i].setFrameTime(sf::seconds(0.2));
-        standSprite[i].setAnimation(standing[i]);
-        standSprite[i].setOrigin(64, 64);
-    }
-
-    for(int i = 0; i < 4; i++) {
-        attacking[i].setSpriteSheet(texture);
-        for(int j = 0; j < 10; j++)
-            attacking[i].addFrame(sf::IntRect((128 * j) + 1024, 256 * i, 128, 128));
-
-        attackSprite[i].setFrameTime(sf::seconds(0.12));
-        attackSprite[i].setAnimation(attacking[i]);
-        attackSprite[i].setOrigin(64, 64);
-    }
-
-    dir = DOWN;
-    state = STANDING;
-    standSprite[dir].play();
-
-    runPoint = cpv(x, y);
-    runDirection = cpvzero;
-
-    double moment = cpMomentForCircle(1, 0, 16, cpvzero);
-    body = cpSpaceAddBody(space, cpBodyNew(1, moment));
-    cpBodySetPos(body, cpv(x, y));
-
-	cpBody *staticBody = cpSpaceGetStaticBody(space);
-    cpConstraint *pivot = cpSpaceAddConstraint(space, cpPivotJointNew2(staticBody, body, cpvzero, cpvzero));
-    cpConstraintSetMaxBias(pivot, 0); // disable joint correction
-    cpConstraintSetMaxForce(pivot, 1000.0f); // emulate linear friction
-
-    cpConstraint *gear = cpSpaceAddConstraint(space, cpGearJointNew(staticBody, body, 0.0f, 1.0f));
-    cpConstraintSetMaxBias(gear, 0); // disable joint correction
-    cpConstraintSetMaxForce(gear, 5000.0f); // emulate angular friction
-
-    maxRunVelocity = 128;
-
-    shapes.push_back(cpSpaceAddShape(space, cpCircleShapeNew(body, 16, cpvzero)));
-    cpShapeSetFriction(shapes.back(), 0.7f);
-
-    frameClock.restart();
 }
 
 Character::~Character()
@@ -78,63 +18,124 @@ Character::~Character()
         cpShapeFree(s);
 }
 
-void Character::move(sf::Vector2f pt)
+void Character::ReInit(float x, float y, Direction d)
 {
-    Terrain *terrain = GPlayState::Instance()->getTerrain();
+    body->p = cpv(x, y);
+    dir = d;
+    state = STANDING;
 
-    cpVect dest = terrain->tileAtCoords(pt);
-    sf::Vector2f playerPos(body->p.x, body->p.y);
-    cpVect start = terrain->tileAtCoords(playerPos);
+    cpConstraintSetMaxForce(pivot, 1200.0f); // emulate linear friction
 
-    path = terrain->getPath(start, dest);
-    if(path.size() == 0) return;
+    dashFrames = 0;
+    speedMod = 0.f;
+    ultLevel = 0;
+    ultToggle = false;
 
-    for(int i = 0; i < path.size(); i++)
-        printf("(%g, %g)\n", path[i].x, path[i].y);
+    dead = false;
+    health = 100;
+    stamina = 100;
 
-    pathSeg = 1;
-    changeDirection();
+    staminaTime = sf::milliseconds(0);
+    staminaFillTimer.restart();
+    frameClock.restart();
 }
 
-void Character::attack()
+bool Character::isDead()
 {
+    return dead;
 }
 
-void Character::update()
+void Character::setOponent(Character *o)
 {
-    if(state == WALKING && cpvnear(body->p, runPoint, 16)) {
-        if(path.size() > ++pathSeg) {
-            changeDirection();
-        } else {
-            cpBodySetVel(body, cpvzero);
-            runDirection = cpvzero;
-            state = STANDING;
-            walkSprite[dir].stop();
-            standSprite[dir].play();
-        }
-    }
+    op = o;
+}
 
+void Character::stop()
+{
     switch(state) {
-        case STANDING:
-            standSprite[dir].update(frameClock.restart());
-            break;
         case WALKING:
-            walkSprite[dir].update(frameClock.restart());
+            walkSprite.stop();
+            walkSprite.setFrame(0);
             break;
+        case DASHING:
         case ATTACKING:
-            attackSprite[dir].update(frameClock.restart());
-            break;
+        case STANDING:
         default:
-            break;
+            return;
     }
+    state = STANDING;
+}
+
+void Character::damage(int hAmount, int sAmount, float speed, cpVect knockBack)
+{
+    health -= hAmount;
+    stamina -= sAmount;
+
+    if(health < 0)
+        health = 0;
+
+    if(health == 0 && speed != 0.f)
+        dead = true;
+
+    if(stamina < 0)
+        stamina = 0;
+
+    speedMod = speed;
+    cpBodySetVel(body, body->v + knockBack);
 }
 
 void Character::physUpdate()
 {
-    if(!(runDirection == cpvzero)) {
-        body->v = runDirection * 128;
-        body->v = cpvclamp(body->v, maxRunVelocity);
+    switch(state) {
+        case DASHING:
+            body->v = body->v * 512;
+            body->v = cpvclamp(body->v, (speedMod + 1) * maxDashVelocity);
+            break;
+        case ATTACKING:
+            body->v = cpvclamp(body->v, (speedMod + 1) * (maxRunVelocity + attackVelocity));
+            break;
+        case WALKING:
+            body->v = body->v * 256;
+        case STANDING:
+        default:
+            body->v = cpvclamp(body->v, (speedMod + 1) * maxRunVelocity);
+            break;
     }
+
+    if(speedMod != 0.f) speedMod *= .95;
+}
+
+cpVect Character::baseVelocity()
+{
+    cpVect vel;
+    switch(dir) {
+        case LEFT:
+            vel = cpv(-1.f, 0.f);
+            break;
+        case UP_LEFT:
+            vel = cpv(-1.f, -1.f);
+            break;
+        case UP_RIGHT:
+            vel = cpv(1.f, -1.f);
+            break;
+        case UP:
+            vel = cpv(0.f, -1.f);
+            break;
+        case RIGHT:
+            vel = cpv(1.f, 0.f);
+            break;
+        case DOWN_RIGHT:
+            vel = cpv(1.f, 1.f);
+            break;
+        case DOWN:
+            vel = cpv(0.f, 1.f);
+            break;
+        case DOWN_LEFT:
+            vel = cpv(-1.f, 1.f);
+            break;
+    }
+
+    return cpvnormalize(vel);
 }
 
 cpVect Character::getPosition()
@@ -142,67 +143,55 @@ cpVect Character::getPosition()
     return body->p;
 }
 
-void Character::changeDirection()
+void Character::drawArrow(sf::RenderWindow *window, sf::Transform trans)
 {
-    if(path.size() < pathSeg + 1) return;
+    sf::CircleShape triangle(5, 3);
+    triangle.setFillColor(arrowColor);
+    triangle.setOrigin(5, 5);
+    triangle.setPosition(body->p.x, body->p.y);
 
-    path[pathSeg - 1] = body->p;
-    path[pathSeg] = path[pathSeg] * 32;
-    runPoint = path[pathSeg];
-
-    runDirection = cpv(path[pathSeg].x - path[pathSeg - 1].x, path[pathSeg].y - path[pathSeg - 1].y);
-    cpvnormalize(runDirection);
-
-    Direction oldDir = dir;
-
-    if(abs(runDirection.x) > abs(runDirection.y)) {
-        if(runDirection.x > 0)
-            dir = RIGHT;
-        else
-            dir = LEFT;
-    } else {
-        if(runDirection.y > 0)
-            dir = DOWN;
-        else
-            dir = UP;
+    float rotation = 0.f;
+    float x = 0.f, y = 0.f;
+    switch(dir) {
+        case LEFT:
+            x = -30.f;
+            rotation = -90.f;
+            break;
+        case UP_LEFT:
+            x = -20.f;
+            y = -20.f;
+            rotation = -45.f;
+            break;
+        case UP:
+            y = -30.f;
+            break;
+        case UP_RIGHT:
+            x = 20.f;
+            y = -20.f;
+            rotation = 45.f;
+            break;
+        case RIGHT:
+            x = 30.f;
+            rotation = 90.f;
+            break;
+        case DOWN_RIGHT:
+            x = 20.f;
+            y = 20.f;
+            rotation = 135.f;
+            break;
+        case DOWN:
+            y = 30.f;
+            rotation = 180.f;
+            break;
+        case DOWN_LEFT:
+            x = -20.f;
+            y = 20.f;
+            rotation = -135.f;
+            break;
     }
 
-    switch(state) {
-        case STANDING:
-            standSprite[oldDir].stop();
-            break;
-        case WALKING:
-            if(oldDir != dir)
-                walkSprite[oldDir].stop();
-            break;
-        case ATTACKING:
-            attackSprite[oldDir].stop();
-            break;
-        default:
-            break;
-    }
+    triangle.setRotation(rotation);
+    triangle.move(x, y);
 
-    walkSprite[dir].play();
-    state = WALKING;
-}
-
-void Character::draw(sf::RenderWindow *window, sf::Transform trans)
-{
-    cpVect pos = cpBodyGetPos(body);
-    switch(state) {
-        case STANDING:
-            standSprite[dir].setPosition(pos.x, pos.y);
-            window->draw(standSprite[dir], trans);
-            break;
-        case WALKING:
-            walkSprite[dir].setPosition(pos.x, pos.y);
-            window->draw(walkSprite[dir], trans);
-            break;
-        case ATTACKING:
-            attackSprite[dir].setPosition(pos.x, pos.y);
-            window->draw(attackSprite[dir], trans);
-            break;
-        default:
-            break;
-    }
+    window->draw(triangle, trans);
 }

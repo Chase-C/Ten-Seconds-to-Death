@@ -9,28 +9,26 @@ class InputManager
 {
 public:
 	InputManager() { };
-	InputManager(Character* c);
+	InputManager(Character *c1, Character *c2);
 
 	void CheckKeyPress(int keyCode);
 	void CheckKeyRelease(int keyCode);
 
-    void mousePress(Engine *game);
+    void mouseUpdate();
 
 	void Update();
 
 private:
-	Character* character;
+	Character *player1;
+	Character *player2;
 
 	bool	up, down,
 			left, right,
-			pause;
-					
-    int     relX, relY;
-	bool	lClick, rClick;
+            w, a, s, d,
+            shift, control,
+			esc;
 
-	int 	upKeys[2], downKeys[2],
-			leftKeys[2], rightKeys[2],
-			pauseKeys[2];
+    bool rClick, lClick;
 };
 
 #endif

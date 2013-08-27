@@ -9,7 +9,7 @@
 bool Engine::Init(const char* title, int width, int height)
 {
     // Create the game window
-    window.create(sf::VideoMode(800, 600), title);
+    window.create(sf::VideoMode(1280, 720), title);
 	
     // start running the game
 	running = true;

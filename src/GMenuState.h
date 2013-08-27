@@ -35,6 +35,15 @@ private:
 
 	void NextItem();
 	void PrevItem();
+
+    bool instructions;
+
+    sf::Font font;
+    sf::Color color;
+    sf::Text text;
+
+    sf::Texture *bg;
+    sf::Sprite bgSprite;
 };
 
 
@@ -58,8 +67,8 @@ private:
 
     sf::Font font;
     sf::Color color;
-
     sf::Text text;
+
 	CallbackFunc callback;
 };
 

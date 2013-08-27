@@ -4,29 +4,56 @@
 
 #include "Engine.h"
 #include "GameState.h"
-#include "GPlayState.h"
 #include "GMenuState.h"
+#include "GCharacterSelectState.h"
 
 GMenuState GMenuState::g_MenuState;
 
 // pass these to the menu items
 void Play(Engine *game);
-void HighScores(Engine *game);
+void Instructions(Engine *game);
 void Quit(Engine *game);
 
 void GMenuState::Init()
 {
+    bg = new sf::Texture();
+    if(!bg->loadFromFile("rec/title.png"))
+        fprintf(stderr, "could not find file 'title.png'\n");
+
+    bgSprite.setTexture(*bg);
+    bgSprite.setPosition(sf::Vector2f(0.f, 0.f));
+
 	items = new GMenuItem*[3];
 	menuIndex = 0;
 
 	for(int i = 0; i < 3; i++)
 		items[i] = new GMenuItem();
 
-	items[0]->Init("Play!", 100, 500, Play);
-	items[1]->Init("High Scores!", 250, 500, HighScores);
+	items[0]->Init("Play!", 150, 300, Play);
+	items[1]->Init("Instructions", 300, 400, Instructions);
 	items[2]->Init("Exit :(", 450, 500, Quit);
 
 	items[menuIndex]->Select();
+
+    instructions = false;
+
+    if(!font.loadFromFile("rec/RevoPop.ttf")) {
+        fprintf(stderr, "could not load font\n");
+    }
+
+    text.setFont(font);
+    text.setString("Player 1 Controls           Player 2 Controls\
+                    \n W/A/S/D                     Up/Down/Left/Right\
+                    \n RControl - Attack          LClick - Attack\
+                    \n RShift - Dash                 RClick - Dash\
+                    \n\nYour character's ultimate move is activated automatically\
+                    \nevery ten seconds. Press the attack button while performing\
+                    \nit to start a combo. You will be unable to dash or combo if\
+                    \nyou don't have enough stamina. To finish off the other\
+                    \nplayer, you need to hit them with you ultimate.");
+    text.setCharacterSize(14);
+    text.setColor(sf::Color(0, 0, 0));
+    text.setPosition(280, 100);
 
 	printf("GMenuState Init\n");
 }
@@ -65,18 +92,24 @@ void GMenuState::HandleEvents(Engine *game)
 
             case sf::Event::KeyPressed:
                 if(ev.key.code == sf::Keyboard::Escape) {
-                    game->window.close();
-                    game->Quit();
+                    if(instructions) {
+                        instructions = false;
+                    } else {
+                        game->window.close();
+                        game->Quit();
+                    }
                 }
 
-                else if(ev.key.code == sf::Keyboard::Right)
+                else if(ev.key.code == sf::Keyboard::Right || ev.key.code == sf::Keyboard::Down)
                     NextItem();
 
-                else if(ev.key.code == sf::Keyboard::Left)
+                else if(ev.key.code == sf::Keyboard::Left || ev.key.code == sf::Keyboard::Up)
                     PrevItem();
 
-                else if(ev.key.code == sf::Keyboard::Return || ev.key.code == sf::Keyboard::Space)
+                else if(ev.key.code == sf::Keyboard::Return || ev.key.code == sf::Keyboard::Space) {
+                    if(menuIndex == 1) instructions = !instructions;
                     items[menuIndex]->Activate(game);
+                }
 
                 break;
 
@@ -117,8 +150,12 @@ void GMenuState::PrevItem()
 void GMenuState::Draw(Engine *game) 
 {
     // draw menu items
+    game->window.draw(bgSprite);
     for(int i = 0; i < 3; i++)
         items[i]->Draw(game);
+
+    if(instructions)
+        game->window.draw(text);
 
 }
 
@@ -134,7 +171,7 @@ void GMenuItem::Init(char *t, int x, int y, void (*e)(Engine *game))
 {
     callback = e;
 
-    if(!font.loadFromFile("RevoPop.ttf")) {
+    if(!font.loadFromFile("rec/RevoPop.ttf")) {
         fprintf(stderr, "could not load font\n");
     }
 
@@ -178,12 +215,11 @@ void GMenuItem::Draw(Engine *game)
 
 void Play(Engine *game)
 {
-	game->PushState(GPlayState::Instance());
+	game->ChangeState(GCharacterSelectState::Instance());
 }
 
-void HighScores(Engine *game)
+void Instructions(Engine *game)
 {
-
 }
 
 void Quit(Engine *game)

@@ -3,14 +3,19 @@ FLAGS		= -Wl,-rpath=. -Wall -Wextra -static-libstdc++
 LIBS		= -lchipmunk -lsfml-graphics -lsfml-window -lsfml-system
 
 SRCDIR		= src
-FILES		= main.cpp Engine.cpp InputManager.cpp GInitState.cpp GMenuState.cpp GPlayState.cpp Character.cpp Terrain.cpp Camera.cpp AIController.cpp DataTypes.cpp Animation.cpp AnimatedSprite.cpp
+OBJDIR		= obj
+FILES		= main.cpp Engine.cpp InputManager.cpp GMenuState.cpp GCharacterSelectState.cpp GPlayState.cpp Character.cpp Fighter.cpp Shooter.cpp Ninja.cpp Bullet.cpp Arena.cpp HUD.cpp Animation.cpp AnimatedSprite.cpp
 SOURCES		= $(FILES:%.cpp=$(SRCDIR)/%.cpp)
-EXEC		= Platformer
+OBJECTS		= $(FILES:%.cpp=$(OBJDIR)/%.o)
+EXEC		= 10_Seconds
 
 all : ${EXEC}
 
-${EXEC} : ${SOURCES}
+${EXEC} : ${OBJECTS}
 	${GCC} ${FLAGS} -o $@ $^ ${LIBS} 
+
+${OBJDIR}/%.o : ${SRCDIR}/%.cpp
+	${GCC} ${FLAGS} -c $< -o $@
 
 clean :
 	- rm ${EXEC}*
