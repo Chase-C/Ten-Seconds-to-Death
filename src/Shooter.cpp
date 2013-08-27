@@ -25,6 +25,19 @@ void Shooter::Init(cpSpace *space, float x, float y, Direction d, sf::Color c)
         return;
     }
 
+    if(!buffer.loadFromFile("rec/shoot.wav")) {
+        fprintf(stderr, "could not load file 'shoot.wav'\n");
+    }
+    shoot.setBuffer(buffer);
+    shoot.setVolume(50);
+
+    if(!lbuffer.loadFromFile("rec/laser.wav")) {
+        fprintf(stderr, "could not load file 'laser.wav'\n");
+    }
+    laser.setBuffer(lbuffer);
+    laser.setVolume(60);
+    playLaser = true;
+
     ultraSprite.setTexture(*ultraTexture);
     ultraSprite.setOrigin(0, 64);
 
@@ -109,6 +122,18 @@ void Shooter::Init(cpSpace *space, float x, float y, Direction d, sf::Color c)
 
 Shooter::~Shooter()
 {
+}
+
+void Shooter::ReInit(float x, float y, Direction d)
+{
+    Character::ReInit(x, y, d);
+    for(int i = 0; i < bullets.size(); i++) {
+        if(bullets.at(i)->destroyed) {
+            delete bullets.at(i);
+            bullets.erase(bullets.begin() + i);
+            continue;
+        }
+    }
 }
 
 void Shooter::dash()
@@ -262,16 +287,23 @@ void Shooter::update()
                     ultSprite.stop();
                     ultLevel = 0;
                     ultToggle = false;
+                    playLaser = true;
                     break;
                 }
                 if(frame == 9 && !ultToggle) {
                     fireUlt1();
                     ultToggle = true;
                 } else if(frame == 11 && ultToggle) {
-                    fireUlt1();
+                    if(stamina >= 30) {
+                        fireUlt1();
+                        stamina -= 30;
+                    } else ultLevel--;
                     ultToggle = false;
                 } else if(frame == 14 && !ultToggle) {
-                    fireUlt2();
+                    if(stamina >= 30) {
+                        fireUlt2();
+                        stamina -= 30;
+                    } else ultLevel--;
                     ultToggle = true;
                 }
             }
@@ -310,7 +342,18 @@ void Shooter::checkBulletCollision(Bullet *b, Character *c)
         b->explode();
         cpVect vel = b->getVelocity();
         vel = vel * 0.15f;
-        c->damage(5, 40, 0, vel);
+
+        int s = 0;
+        if(b->ult)
+            s = -.2;
+
+        int d = 5;
+        if(b->ult)
+            d = 10;
+        if(b->getR2() > 4000)
+            d = 25;
+
+        c->damage(d, 40, s, vel);
     }
 
     if(bp.x < 190 || bp.x > 1090 || bp.y < 35 || bp.y > 685)
@@ -319,58 +362,64 @@ void Shooter::checkBulletCollision(Bullet *b, Character *c)
 
 void Shooter::fireUlt1()
 {
+    shoot.play();
     cpVect p = body->p + firePos();
     cpVect v = baseVelocity() * 20;
-    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x, v.y, (dir * 45) - 180, laserball));
-    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x , v.y, (dir * 45) - 180, laserball));
-    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x, v.y, (dir * 45) - 180, laserball));
+    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x, v.y, (dir * 45) - 180, laserball, true));
+    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x , v.y, (dir * 45) - 180, laserball, true));
+    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x, v.y, (dir * 45) - 180, laserball, true));
 
     switch(dir) {
         case LEFT:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y - 6, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y + 6, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y - 6, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y + 6, (dir * 45) - 180, laserball, true));
             break;
         case UP_LEFT:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 4, v.y - 2, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y + 4, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 4, v.y - 2, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y + 4, (dir * 45) - 180, laserball, true));
             break;
         case UP:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 6, v.y + 2, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 6, v.y + 2, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 6, v.y + 2, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 6, v.y + 2, (dir * 45) - 180, laserball, true));
             break;
         case UP_RIGHT:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y + 4, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 4, v.y - 2, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y + 4, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 4, v.y - 2, (dir * 45) - 180, laserball, true));
             break;
         case RIGHT:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y - 6, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y + 6, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y - 6, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y + 6, (dir * 45) - 180, laserball, true));
             break;
         case DOWN_RIGHT:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y - 4, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 4, v.y + 2, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 2, v.y - 4, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 4, v.y + 2, (dir * 45) - 180, laserball, true));
             break;
         case DOWN:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 6, v.y - 2, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 6, v.y - 2, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 6, v.y - 2, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 6, v.y - 2, (dir * 45) - 180, laserball, true));
             break;
         case DOWN_LEFT:
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 4, v.y + 2, (dir * 45) - 180, laserball));
-            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y - 4, (dir * 45) - 180, laserball));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x + 4, v.y + 2, (dir * 45) - 180, laserball, true));
+            bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x - 2, v.y - 4, (dir * 45) - 180, laserball, true));
             break;
     }
 }
 
 void Shooter::fireUlt2()
 {
+    shoot.play();
     cpVect p = body->p + firePos();
     cpVect v = baseVelocity() * 20;
-    bullets.push_back(new Bullet(p.x, p.y, 4048.f, v.x, v.y, (dir * 45) - 180, laserball));
+    bullets.push_back(new Bullet(p.x, p.y, 4048.f, v.x, v.y, (dir * 45) - 180, laserball, true));
 }
 
 void Shooter::checkUltCollisions()
 {
     if(ultClock.getElapsedTime() < sf::seconds(0.36)) return;
+    if(playLaser) {
+        laser.play();
+        playLaser = false;
+    }
 
     cpVect line = firePos() * 128;
     cpVect posOff = body->p - op->getPosition();
@@ -388,7 +437,7 @@ void Shooter::checkUltCollisions()
 
     if((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1)) {
         cpVect k = cpvnormalize(firePos()) * 24.f ;
-        op->damage(1, 2, -0.75f, k);
+        op->damage(0.5f, 2, -0.75f, k);
     }
 }
 
@@ -430,9 +479,10 @@ cpVect Shooter::firePos()
 
 void Shooter::fireBullet()
 {
+    shoot.play();
     cpVect p = body->p + firePos();
     cpVect v = baseVelocity() * 20;
-    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x, v.y, (dir * 45) - 180, laserball));
+    bullets.push_back(new Bullet(p.x, p.y, 1200.f, v.x, v.y, (dir * 45) - 180, laserball, false));
 }
 
 void Shooter::draw(sf::RenderWindow *window, sf::Transform trans)

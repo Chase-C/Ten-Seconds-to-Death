@@ -13,6 +13,12 @@ void Ninja::Init(cpSpace *space, float x, float y, Direction d, sf::Color c)
         return;
     }
 
+    if(!buffer.loadFromFile("rec/whip.wav")) {
+        fprintf(stderr, "could not load file 'shoot.wav'\n");
+    }
+    shoot.setBuffer(buffer);
+    shoot.setVolume(60);
+
     arrowColor = c;
     dir = d;
 
@@ -148,7 +154,7 @@ void Ninja::attack()
 
         attackSprite.play();
         cpVect damageArea = body->p + (baseVelocity() * 64);
-        checkDamage(damageArea, 4096.f, 5, 50, 0.f, 0.f);
+        checkDamage(damageArea, 3600.f, 5, 50, 0.f, 0.f);
     }
 }
 
@@ -216,8 +222,10 @@ void Ninja::update()
             break;
         case ATTACKING:
             attackSprite.update(frameClock.restart());
-            if(!attackSprite.isPlaying())
+            if(!attackSprite.isPlaying()) {
                 state = STANDING;
+                attackSprite.stop();
+            }
             break;
         case DASHING:
             dashSprite.update(frameClock.restart());
@@ -243,10 +251,16 @@ void Ninja::update()
                     ultAttack1();
                     ultToggle = true;
                 } else if(frame == 6 && ultToggle) {
-                    ultAttack1();
+                    if(stamina > 30) {
+                        ultAttack1();
+                        stamina -= 30;
+                    } else ultLevel--;
                     ultToggle = false;
                 } else if(frame > 6) {
-                    ultAttack2();
+                    if(stamina > 0) {
+                        ultAttack2();
+                        stamina -= 1;
+                    } else ultLevel--;
                 }
             }
             break;
@@ -270,13 +284,15 @@ void Ninja::ultAttack1()
 
 void Ninja::ultAttack2()
 {
-    checkDamage(body->p, 21904.f, 2, 4, -.3f, 256.f);
+    checkDamage(body->p, 17956.f, 2, 4, -.3f, 256.f);
 }
 
 void Ninja::checkDamage(cpVect from, float r2, int d, int s, float speed, float knockBack)
 {
     float xDist = from.x - op->getPosition().x;
     float yDist = from.y - op->getPosition().y;
+
+    shoot.play();
 
     cpVect k = cpv(0, 0);
     if(knockBack != 0.f) {

@@ -9,7 +9,7 @@ class Bullet
 {
     public:
         Bullet() { };
-        Bullet(float _x, float _y, float _r2, float vx, float vy, float rot, sf::Texture *laserball);
+        Bullet(float _x, float _y, float _r2, float vx, float vy, float rot, sf::Texture *laserball, bool u);
         ~Bullet();
 
         void update(sf::Time t);
@@ -22,6 +22,8 @@ class Bullet
 
         void explode();
         void draw(sf::RenderWindow *window, sf::Transform trans);
+
+        bool ult;
 
     private:
         float x, y;

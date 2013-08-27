@@ -5,6 +5,7 @@
 #include "Engine.h"
 #include "GameState.h"
 #include "GPlayState.h"
+#include "GMenuState.h"
 #include "GCharacterSelectState.h"
 
 GCharacterSelectState GCharacterSelectState::g_CharacterSelectState;
@@ -34,6 +35,11 @@ void GCharacterSelectState::Init()
         fprintf(stderr, "could not load file 'markers.png'\n");
         return;
     }
+
+    if(!buffer.loadFromFile("rec/beep.wav"))
+        fprintf(stderr, "could not load file 'beep.wav'\n");
+    beep.setBuffer(buffer);
+    beep.setVolume(60);
 
     bg.setTexture(*bgT);
 
@@ -85,22 +91,28 @@ void GCharacterSelectState::HandleEvents(Engine *game)
 
             case sf::Event::KeyPressed:
                 if(ev.key.code == sf::Keyboard::Escape) {
-                    game->PopState();
+                    game->ChangeState(GMenuState::Instance());
                 }
 
-                else if(ev.key.code == sf::Keyboard::Right && !p2LockIn)
+                else if(ev.key.code == sf::Keyboard::Right && !p2LockIn) {
                     p2Index = (p2Index + 1) % 3;
+                    beep.play();
+                }
 
                 else if(ev.key.code == sf::Keyboard::Left && !p2LockIn) {
                     p2Index--;
+                    beep.play();
                     if(p2Index < 0) p2Index = 2;
                 }
 
-                else if(ev.key.code == sf::Keyboard::D && !p1LockIn)
+                else if(ev.key.code == sf::Keyboard::D && !p1LockIn) {
                     p1Index = (p1Index + 1) % 3;
+                    beep.play();
+                }
 
                 else if(ev.key.code == sf::Keyboard::A && !p1LockIn) {
                     p1Index--;
+                    beep.play();
                     if(p1Index < 0) p1Index = 2;
                 }
 
@@ -108,6 +120,7 @@ void GCharacterSelectState::HandleEvents(Engine *game)
                     if(p1LockIn && p2LockIn) {
                         GPlayState::Instance()->SetP1Type(p1Index);
                         GPlayState::Instance()->SetP2Type(p2Index);
+                        GPlayState::Instance()->music = music;
                         game->ChangeState(GPlayState::Instance());
                     }
                     p1LockIn = true;
@@ -140,6 +153,7 @@ void GCharacterSelectState::HandleEvents(Engine *game)
 
 void GCharacterSelectState::Update(Engine *game) 
 {
+    music->update();
 }
 
 void GCharacterSelectState::Draw(Engine *game) 

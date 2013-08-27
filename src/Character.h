@@ -2,6 +2,7 @@
 #define CHARACTER_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <chipmunk/chipmunk.h>
 #include "AnimatedSprite.hpp"
 
@@ -32,7 +33,7 @@ public:
     void stop();
     virtual void dash() { };
     virtual void attack() { };
-    void damage(int hAmount, int sAmount, float speed, cpVect knockBack);
+    void damage(float hAmount, int sAmount, float speed, cpVect knockBack);
 
     virtual void ult() { };
 
@@ -63,7 +64,7 @@ protected:
     int dashFrames;
     float speedMod;
 
-    int health;
+    float health;
     int stamina;
 
     sf::Time staminaTime;
@@ -85,6 +86,9 @@ protected:
     bool ultToggle;
 
     sf::Clock frameClock;
+
+    sf::SoundBuffer buffer;
+    sf::Sound shoot;
 
     cpBody *body;
     cpConstraint *pivot;

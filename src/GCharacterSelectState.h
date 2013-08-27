@@ -43,6 +43,9 @@ private:
 
     sf::Texture *bgT;
     sf::Sprite bg;
+
+    sf::SoundBuffer buffer;
+    sf::Sound beep;
 };
 
 #endif

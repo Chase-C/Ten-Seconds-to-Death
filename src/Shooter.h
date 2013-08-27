@@ -10,6 +10,7 @@ class Shooter : public Character
         Shooter();
         ~Shooter();
         void Init(cpSpace *space, float x, float y, Direction d, sf::Color c);
+        void ReInit(float x, float y, Direction d);
 
         void dash();
         void attack();
@@ -40,6 +41,10 @@ class Shooter : public Character
         sf::Sprite ultraSprite;
 
         sf::Texture *laserball;
+
+        sf::SoundBuffer lbuffer;
+        sf::Sound laser;
+        bool playLaser;
 };
 
 #endif

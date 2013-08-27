@@ -2,6 +2,7 @@
 #define GMENUSTATE_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "GameState.h"
 
@@ -44,6 +45,9 @@ private:
 
     sf::Texture *bg;
     sf::Sprite bgSprite;
+
+    sf::SoundBuffer buffer;
+    sf::Sound beep;
 };
 
 

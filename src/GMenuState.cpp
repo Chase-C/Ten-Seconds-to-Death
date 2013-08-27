@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <SFML/Graphics.hpp>
 
@@ -16,9 +17,15 @@ void Quit(Engine *game);
 
 void GMenuState::Init()
 {
+    srand(time(NULL));
     bg = new sf::Texture();
     if(!bg->loadFromFile("rec/title.png"))
         fprintf(stderr, "could not find file 'title.png'\n");
+
+    if(!buffer.loadFromFile("rec/beep.wav"))
+        fprintf(stderr, "could not load file 'beep.wav'\n");
+    beep.setBuffer(buffer);
+    beep.setVolume(60);
 
     bgSprite.setTexture(*bg);
     bgSprite.setPosition(sf::Vector2f(0.f, 0.f));
@@ -44,8 +51,8 @@ void GMenuState::Init()
     text.setFont(font);
     text.setString("Player 1 Controls           Player 2 Controls\
                     \n W/A/S/D                     Up/Down/Left/Right\
-                    \n RControl - Attack          LClick - Attack\
-                    \n RShift - Dash                 RClick - Dash\
+                    \n LControl - Attack          LClick - Attack\
+                    \n LShift - Dash                 RClick - Dash\
                     \n\nYour character's ultimate move is activated automatically\
                     \nevery ten seconds. Press the attack button while performing\
                     \nit to start a combo. You will be unable to dash or combo if\
@@ -65,6 +72,7 @@ void GMenuState::Cleanup()
 		delete items[i];
 	}
 	delete items;
+    delete bg;
 
 	printf("GMenuState Cleanup\n");
 }
@@ -100,13 +108,18 @@ void GMenuState::HandleEvents(Engine *game)
                     }
                 }
 
-                else if(ev.key.code == sf::Keyboard::Right || ev.key.code == sf::Keyboard::Down)
+                else if(ev.key.code == sf::Keyboard::Right || ev.key.code == sf::Keyboard::Down) {
                     NextItem();
+                    beep.play();
+                }
 
-                else if(ev.key.code == sf::Keyboard::Left || ev.key.code == sf::Keyboard::Up)
+                else if(ev.key.code == sf::Keyboard::Left || ev.key.code == sf::Keyboard::Up) {
                     PrevItem();
+                    beep.play();
+                }
 
                 else if(ev.key.code == sf::Keyboard::Return || ev.key.code == sf::Keyboard::Space) {
+                    if(menuIndex == 0) GCharacterSelectState::Instance()->music = music;
                     if(menuIndex == 1) instructions = !instructions;
                     items[menuIndex]->Activate(game);
                 }
@@ -120,7 +133,7 @@ void GMenuState::HandleEvents(Engine *game)
 
 void GMenuState::Update(Engine *game) 
 {
-
+    music->update();
 }
 
 void GMenuState::NextItem()
@@ -150,6 +163,7 @@ void GMenuState::PrevItem()
 void GMenuState::Draw(Engine *game) 
 {
     // draw menu items
+    
     game->window.draw(bgSprite);
     for(int i = 0; i < 3; i++)
         items[i]->Draw(game);
@@ -190,7 +204,7 @@ void GMenuItem::Cleanup()
 
 void GMenuItem::Select()
 {
-    text.setColor(sf::Color(64, 64, 64));
+    text.setColor(sf::Color(64, 128, 255));
     text.move(0.f, -10.f);
 }
 

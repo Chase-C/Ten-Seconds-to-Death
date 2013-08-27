@@ -217,6 +217,7 @@ void GPlayState::Update(Engine* game)
             cpSpaceStep(space, step);
         }
     }
+    music->update();
 }
 
 void GPlayState::Quit(Engine* game)

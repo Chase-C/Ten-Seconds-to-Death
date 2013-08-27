@@ -1,7 +1,7 @@
 #include "Bullet.h"
 
-Bullet::Bullet(float _x, float _y, float _r2, float xv, float yv, float rot, sf::Texture *laserball) :
-    x(_x), y(_y), r2(_r2), xVel(xv), yVel(yv)
+Bullet::Bullet(float _x, float _y, float _r2, float xv, float yv, float rot, sf::Texture *laserball, bool u) :
+    x(_x), y(_y), r2(_r2), xVel(xv), yVel(yv), ult(u)
 {
     anim.setSpriteSheet(*laserball);
     for(int i = 0; i < 4; i++)

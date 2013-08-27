@@ -13,6 +13,12 @@ void Fighter::Init(cpSpace *space, float x, float y, Direction d, sf::Color c)
         return;
     }
 
+    if(!buffer.loadFromFile("rec/punch.wav")) {
+        fprintf(stderr, "could not load file 'shoot.wav'\n");
+    }
+    shoot.setBuffer(buffer);
+    shoot.setVolume(60);
+
     arrowColor = c;
     dir = d;
 
@@ -257,10 +263,16 @@ void Fighter::update()
                     checkDamage(3600.f, 30, 60, -0.5, 1024.f);
                     ultToggle = true;
                 } else if(frame == 4 && ultToggle) {
-                    checkDamage(3600.f, 30, 60, -0.5, 1024.f);
+                    if(stamina >= 30) {
+                        checkDamage(3600.f, 30, 60, -0.5, 1024.f);
+                        stamina -= 30;
+                    } else ultLevel--;
                     ultToggle = false;
                 } else if(frame == 10 && !ultToggle) {
-                    checkDamage(3600.f, 50, 75, -0.5, 1024.f);
+                    if(stamina >= 30) {
+                        checkDamage(3600.f, 50, 75, -0.5, 1024.f);
+                        stamina -= 30;
+                    } else ultLevel--;
                     ultToggle = true;
                 }
             }
@@ -314,6 +326,8 @@ void Fighter::checkDamage(float r2, int d, int s, float speed, float knockBack)
     cpVect damageArea = body->p + cpv(x, y);
     float xDist = damageArea.x - op->getPosition().x;
     float yDist = damageArea.y - op->getPosition().y;
+
+    shoot.play();
 
     cpVect k = cpv(0, 0);
     if(knockBack != 0.f) {

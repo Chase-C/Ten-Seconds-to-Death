@@ -66,7 +66,7 @@ void Character::stop()
     state = STANDING;
 }
 
-void Character::damage(int hAmount, int sAmount, float speed, cpVect knockBack)
+void Character::damage(float hAmount, int sAmount, float speed, cpVect knockBack)
 {
     health -= hAmount;
     stamina -= sAmount;

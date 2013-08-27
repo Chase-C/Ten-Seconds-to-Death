@@ -2,6 +2,7 @@
 #define GAMESTATE_H
 
 #include "Engine.h"
+#include "GMusic.h"
 
 class GameState
 {
@@ -15,6 +16,8 @@ public:
 	virtual void HandleEvents(Engine* game) = 0;
 	virtual void Update(Engine* game) = 0;
 	virtual void Draw(Engine* game) = 0;
+
+    GMusic *music;
 
 	void ChangeState(Engine* game, GameState* state) {
 		game->ChangeState(state);

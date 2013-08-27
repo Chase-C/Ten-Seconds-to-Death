@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "GMenuState.h"
+#include "GMusic.h"
 
 int main()
 {
@@ -11,6 +12,10 @@ int main()
 	}
 
 	// load the intro
+    GMusic *music = new GMusic();
+    music->play();
+    GMenuState::Instance()->music = music;
+
 	game.ChangeState(GMenuState::Instance());
 
 	// main loop
