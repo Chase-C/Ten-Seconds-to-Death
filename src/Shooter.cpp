@@ -345,7 +345,7 @@ void Shooter::checkBulletCollision(Bullet *b, Character *c)
 
         int s = 0;
         if(b->ult)
-            s = -.2;
+            s = -.5;
 
         int d = 5;
         if(b->ult)

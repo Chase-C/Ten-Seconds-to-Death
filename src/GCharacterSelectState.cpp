@@ -136,6 +136,7 @@ void GCharacterSelectState::HandleEvents(Engine *game)
                     if(p1LockIn && p2LockIn) {
                         GPlayState::Instance()->SetP1Type(p1Index);
                         GPlayState::Instance()->SetP2Type(p2Index);
+                        GPlayState::Instance()->music = music;
                         game->PushState(GPlayState::Instance());
                     }
                     p2LockIn = true;

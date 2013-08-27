@@ -104,8 +104,10 @@ void Ninja::dash()
         switch(state) {
             case WALKING:
                 walkSprite.stop();
+                break;
             case STANDING:
             case ATTACKING:
+                attackSprite.stop();
                 break;
             case DASHING:
             case ULT:
@@ -279,12 +281,12 @@ void Ninja::update()
 void Ninja::ultAttack1()
 {
     cpVect damageArea = body->p + (baseVelocity() * 64.f);
-    checkDamage(damageArea, 4096.f, 20, 40, -.3f, 0.f);
+    checkDamage(damageArea, 4096.f, 20, 40, -.6f, 0.f);
 }
 
 void Ninja::ultAttack2()
 {
-    checkDamage(body->p, 17956.f, 2, 4, -.3f, 256.f);
+    checkDamage(body->p, 17956.f, 2, 4, -.6f, 256.f);
 }
 
 void Ninja::checkDamage(cpVect from, float r2, int d, int s, float speed, float knockBack)
