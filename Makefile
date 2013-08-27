@@ -1,5 +1,5 @@
 GCC			= g++ -std=c++11 -O0
-FLAGS		= -Wl,-rpath=. -Wall -Wextra -static-libstdc++
+FLAGS		= -Wl,-rpath=. -Wall -Wextra -static-libstdc++ -DSFML_STATIC
 LIBS		= -lchipmunk -lsfml-graphics -lsfml-window -lsfml-system
 
 SRCDIR		= src
