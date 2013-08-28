@@ -8,114 +8,106 @@ InputManager::InputManager(Character *c1, Character *c2)
 {
     player1 = c1;
     player2 = c2;
+    p2 = true;
 
-	up = false;
-	down = false;
-	left = false;
-	right = false;
-    w = false;
-    a = false;
-    s = false;
-    d = false;
-    shift = false;
-    control = false;
+    init();
+}
+
+InputManager::InputManager(Character *c1)
+{
+    player1 = c1;
+    player2 = NULL;
+    p2 = false;
+
+    init();
+}
+
+void InputManager::init()
+{
+	up1 = false;
+	down1 = false;
+	left1 = false;
+	right1 = false;
+    attack1 = false;
+    dash1 = false;
+
+	up2 = false;
+	down2 = false;
+	left2 = false;
+	right2 = false;
+    attack2 = false;
+    dash2 = false;
+
 	esc = false;
 
-    rClick = false;
-    lClick = false;
+	upKey1 = sf::Keyboard::Up;
+	downKey1 = sf::Keyboard::Down;
+	leftKey1 = sf::Keyboard::Left;
+	rightKey1 = sf::Keyboard::Right;
+    attackKey1 = sf::Mouse::Left + 128;
+    dashKey1 = sf::Mouse::Right + 128;
+
+	upKey2 = sf::Keyboard::W;
+	downKey2 = sf::Keyboard::S;
+	leftKey2 = sf::Keyboard::A;
+	rightKey2 = sf::Keyboard::D;
+    attackKey2 = sf::Keyboard::LControl;
+    dashKey2 = sf::Keyboard::LShift;
 }
 
-void InputManager::CheckKeyPress(int keyCode)
+void InputManager::eventUpdate(int keyCode, bool state)
 {
-	if(keyCode == sf::Keyboard::Up) {
-		up = true;
-	} else if(keyCode == sf::Keyboard::Down) {
-		down = true;
-	} else if(keyCode == sf::Keyboard::Left) {
-		left = true;
-	} else if(keyCode == sf::Keyboard::Right) {
-		right = true;
-	} else if(keyCode == sf::Keyboard::W) {
-		w = true;
-	} else if(keyCode == sf::Keyboard::A) {
-		a = true;
-	} else if(keyCode == sf::Keyboard::S) {
-		s = true;
-    } else if(keyCode == sf::Keyboard::D) {
-		d = true;
-    } else if(keyCode == sf::Keyboard::LShift) {
-		shift = true;
-    } else if(keyCode == sf::Keyboard::LControl) {
-		control = true;
-    } else if(keyCode == sf::Keyboard::Escape) {
-		esc = true;
-	}
-}
-
-void InputManager::CheckKeyRelease(int keyCode)
-{
-	if(keyCode == sf::Keyboard::Up) {
-		up = false;
-	} else if(keyCode == sf::Keyboard::Down) {
-		down = false;
-	} else if(keyCode == sf::Keyboard::Left) {
-		left = false;
-	} else if(keyCode == sf::Keyboard::Right) {
-		right = false;
-	} else if(keyCode == sf::Keyboard::W) {
-		w = false;
-	} else if(keyCode == sf::Keyboard::A) {
-		a = false;
-	} else if(keyCode == sf::Keyboard::S) {
-		s = false;
-    } else if(keyCode == sf::Keyboard::D) {
-		d = false;
-    } else if(keyCode == sf::Keyboard::LShift) {
-		shift = false;
-    } else if(keyCode == sf::Keyboard::LControl) {
-		control = false;
-    } else if(keyCode == sf::Keyboard::Escape) {
-		esc = false;
+    if(keyCode == upKey1) {
+        up1 = state;
+    } else if(keyCode == downKey1) {
+        down1 = state;
+    } else if(keyCode == leftKey1) {
+        left1 = state;
+    } else if(keyCode == rightKey1) {
+        right1 = state;
+    } else if(keyCode == attackKey1) {
+        attack1 = state;
+    } else if(keyCode == dashKey1) {
+        dash1 = state;
+    } else if(keyCode == upKey2) {
+        up2 = state;
+    } else if(keyCode == downKey2) {
+        down2 = state;
+    } else if(keyCode == leftKey2) {
+        left2 = state;
+    } else if(keyCode == rightKey2) {
+        right2 = state;
+    } else if(keyCode == attackKey2) {
+        attack2 = state;
+    } else if(keyCode == dashKey2) {
+        dash2 = state;
     }
-}
-
-void InputManager::mouseUpdate()
-{
-    if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        lClick = true;
-    else
-        lClick = false;
-    
-    if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
-        rClick = true;
-    else
-        rClick = false;
 }
 
 void InputManager::Update()
 {
     // Move Player 1
     {
-        if(w && !s) {
-            if(a ^ d) {
-                if(a)
+        if(up1 && !down1) {
+            if(left1 ^ right1) {
+                if(left1)
                     player1->move(Character::Direction::UP_LEFT);
                 else
                     player1->move(Character::Direction::UP_RIGHT);
             } else {
                 player1->move(Character::Direction::UP);
             }
-        } else if(s && !w) {
-            if(a ^ d) {
-                if(a)
+        } else if(down1 && !up1) {
+            if(left1 ^ right1) {
+                if(left1)
                     player1->move(Character::Direction::DOWN_LEFT);
                 else
                     player1->move(Character::Direction::DOWN_RIGHT);
             } else {
                 player1->move(Character::Direction::DOWN);
             }
-        } else if(a ^ d) {
-            if(a)
+        } else if(left1 ^ right1) {
+            if(left1)
                 player1->move(Character::Direction::LEFT);
             else
                 player1->move(Character::Direction::RIGHT);
@@ -123,34 +115,34 @@ void InputManager::Update()
             player1->stop();
         }
 
-        if(shift)
+        if(dash1)
             player1->dash();
-        else if(control)
+        else if(attack1)
             player1->attack();
     }
 
     // Move Player 2
-    {
-        if(up && !down) {
-            if(left ^ right) {
-                if(left)
+    if(p2) {
+        if(up2 && !down2) {
+            if(left2 ^ right2) {
+                if(left2)
                     player2->move(Character::Direction::UP_LEFT);
                 else
                     player2->move(Character::Direction::UP_RIGHT);
             } else {
                 player2->move(Character::Direction::UP);
             }
-        } else if(down && !up) {
-            if(left ^ right) {
-                if(left)
+        } else if(down2 && !up2) {
+            if(left2 ^ right2) {
+                if(left2)
                     player2->move(Character::Direction::DOWN_LEFT);
                 else
                     player2->move(Character::Direction::DOWN_RIGHT);
             } else {
                 player2->move(Character::Direction::DOWN);
             }
-        } else if(left ^ right) {
-            if(left)
+        } else if(left2 ^ right2) {
+            if(left2)
                 player2->move(Character::Direction::LEFT);
             else
                 player2->move(Character::Direction::RIGHT);
@@ -158,9 +150,9 @@ void InputManager::Update()
             player2->stop();
         }
 
-        if(rClick)
+        if(dash2)
             player2->dash();
-        else if(lClick)
+        else if(attack2)
             player2->attack();
     }
 }

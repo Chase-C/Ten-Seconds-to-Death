@@ -35,7 +35,7 @@ void GPlayState::Init()
     player1->setOponent(player2);
     player2->setOponent(player1);
 
-	inputManager = InputManager(player1, player2);
+	inputManager = InputManager(player2, player1);
     hud = HUD(player1, player2);
 
     if(!font.loadFromFile("rec/RevoPop.ttf")) {
@@ -133,7 +133,7 @@ void GPlayState::HandleEvents(Engine* game)
                 break;
 
             case sf::Event::KeyPressed:
-                inputManager.CheckKeyPress(ev.key.code);
+                inputManager.eventUpdate(ev.key.code, true);
 
                 if(ev.key.code == sf::Keyboard::Escape)
                     Quit(game);
@@ -141,15 +141,15 @@ void GPlayState::HandleEvents(Engine* game)
                 break;
 
             case sf::Event::KeyReleased:
-                inputManager.CheckKeyRelease(ev.key.code);
+                inputManager.eventUpdate(ev.key.code, false);
                 break;
                 
             case sf::Event::MouseButtonPressed:
-                inputManager.mouseUpdate();
+                inputManager.eventUpdate(ev.mouseButton.button + 128, true);
                 break;
 
             case sf::Event::MouseButtonReleased:
-                inputManager.mouseUpdate();
+                inputManager.eventUpdate(ev.mouseButton.button + 128, false);
                 break;
                 
             default: break;
