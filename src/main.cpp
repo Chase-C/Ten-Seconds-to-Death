@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "GMenuState.h"
 #include "GMusic.h"
+#include "InputManager.h"
 
 int main()
 {
@@ -11,11 +12,7 @@ int main()
 		return 1;
 	}
 
-	// load the intro
-    GMusic *music = new GMusic();
-    music->play();
-    GMenuState::Instance()->music = music;
-
+    game.window.setJoystickThreshold(10);
 	game.ChangeState(GMenuState::Instance());
 
 	// main loop

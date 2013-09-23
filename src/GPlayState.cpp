@@ -35,7 +35,9 @@ void GPlayState::Init()
     player1->setOponent(player2);
     player2->setOponent(player1);
 
-	inputManager = InputManager(player2, player1);
+	inputManager->addPlayer(player1);
+	inputManager->addPlayer(player2);
+
     hud = HUD(player1, player2);
 
     if(!font.loadFromFile("rec/RevoPop.ttf")) {
@@ -133,7 +135,7 @@ void GPlayState::HandleEvents(Engine* game)
                 break;
 
             case sf::Event::KeyPressed:
-                inputManager.eventUpdate(ev.key.code, true);
+                inputManager->keyUpdate(ev.key.code, true);
 
                 if(ev.key.code == sf::Keyboard::Escape)
                     Quit(game);
@@ -141,15 +143,30 @@ void GPlayState::HandleEvents(Engine* game)
                 break;
 
             case sf::Event::KeyReleased:
-                inputManager.eventUpdate(ev.key.code, false);
+                inputManager->keyUpdate(ev.key.code, false);
                 break;
                 
             case sf::Event::MouseButtonPressed:
-                inputManager.eventUpdate(ev.mouseButton.button + 128, true);
+                inputManager->mouseUpdate(ev.mouseButton.button, true);
                 break;
 
             case sf::Event::MouseButtonReleased:
-                inputManager.eventUpdate(ev.mouseButton.button + 128, false);
+                inputManager->mouseUpdate(ev.mouseButton.button, false);
+                break;
+
+            case sf::Event::JoystickMoved:
+                inputManager->joystickMoveUpdate(ev.joystickMove.joystickId,
+                        ev.joystickMove.axis, ev.joystickMove.position);
+                break;
+
+            case sf::Event::JoystickButtonPressed:
+                inputManager->joystickButtonUpdate(ev.joystickButton.joystickId,
+                        ev.joystickButton.button, true);
+                break;
+                
+            case sf::Event::JoystickButtonReleased:
+                inputManager->joystickButtonUpdate(ev.joystickButton.joystickId,
+                        ev.joystickButton.button, false);
                 break;
                 
             default: break;
@@ -196,7 +213,7 @@ void GPlayState::Update(Engine* game)
                 game->ChangeState(GMenuState::Instance());
         }
     } else {
-        inputManager.Update();
+        inputManager->playStateUpdate();
 
         if(ultClock.getElapsedTime() > sf::seconds(5.0)) {
             ultClock.restart();

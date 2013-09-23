@@ -3,6 +3,7 @@
 
 #include "Engine.h"
 #include "GMusic.h"
+#include "InputManager.h"
 
 class GameState
 {
@@ -17,7 +18,8 @@ public:
 	virtual void Update(Engine* game) = 0;
 	virtual void Draw(Engine* game) = 0;
 
-    GMusic *music;
+    static GMusic *music;
+    static InputManager *inputManager;
 
 	void ChangeState(Engine* game, GameState* state) {
 		game->ChangeState(state);

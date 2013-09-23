@@ -83,6 +83,7 @@ void GCharacterSelectState::HandleEvents(Engine *game)
     sf::Event ev;
     // wait for an event (mouse movement, key press, etc.)
     while(game->window.pollEvent(ev)) {
+        int button = 0, id = 0, pos = 0;
         switch(ev.type) {
             case sf::Event::Closed:
                 game->window.close();
@@ -90,64 +91,63 @@ void GCharacterSelectState::HandleEvents(Engine *game)
                 break;
 
             case sf::Event::KeyPressed:
+                button = ev.key.code;
                 if(ev.key.code == sf::Keyboard::Escape) {
                     game->ChangeState(GMenuState::Instance());
                 }
-
-                else if(ev.key.code == sf::Keyboard::Right && !p2LockIn) {
-                    p2Index = (p2Index + 1) % 3;
-                    beep.play();
-                }
-
-                else if(ev.key.code == sf::Keyboard::Left && !p2LockIn) {
-                    p2Index--;
-                    beep.play();
-                    if(p2Index < 0) p2Index = 2;
-                }
-
-                else if(ev.key.code == sf::Keyboard::D && !p1LockIn) {
-                    p1Index = (p1Index + 1) % 3;
-                    beep.play();
-                }
-
-                else if(ev.key.code == sf::Keyboard::A && !p1LockIn) {
-                    p1Index--;
-                    beep.play();
-                    if(p1Index < 0) p1Index = 2;
-                }
-
-                else if(ev.key.code == sf::Keyboard::LControl) {
-                    if(p1LockIn && p2LockIn) {
-                        GPlayState::Instance()->SetP1Type(p1Index);
-                        GPlayState::Instance()->SetP2Type(p2Index);
-                        GPlayState::Instance()->music = music;
-                        game->ChangeState(GPlayState::Instance());
-                    }
-                    p1LockIn = true;
-                }
-
-                else if(ev.key.code == sf::Keyboard::LShift)
-                    p1LockIn = false;
-
                 break;
 
             case sf::Event::MouseButtonPressed:
-                if(sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-                    if(p1LockIn && p2LockIn) {
-                        GPlayState::Instance()->SetP1Type(p1Index);
-                        GPlayState::Instance()->SetP2Type(p2Index);
-                        GPlayState::Instance()->music = music;
-                        game->PushState(GPlayState::Instance());
-                    }
-                    p2LockIn = true;
-                }
-
-                else if(sf::Mouse::isButtonPressed(sf::Mouse::Right))
-                    p2LockIn = false;
-
+                button = ev.mouseButton.button;
                 break;
+            case sf::Event::JoystickButtonPressed:
+                button = ev.joystickButton.button;
+                id = ev.joystickButton.joystickId;
+                break;
+            case sf::Event::JoystickMoved:
+                button = ev.joystickMove.axis;
+                id = ev.joystickMove.joystickId;
+                pos = ev.joystickMove.position;
+                if(abs(pos) < 5) continue;
+                break;
+            default: continue;
+        }
 
-            default: break;
+        int code = inputManager->convert(button, ev.type, id, pos);
+
+        if(inputManager->isRight2(code) && !p2LockIn) {
+            p2Index = (p2Index + 1) % 3;
+            beep.play();
+        } else if(inputManager->isLeft2(code) && !p2LockIn) {
+            p2Index--;
+            beep.play();
+            if(p2Index < 0) p2Index = 2;
+        } else if(inputManager->isRight1(code) && !p1LockIn) {
+            p1Index = (p1Index + 1) % 3;
+            beep.play();
+        } else if(inputManager->isLeft1(code) && !p1LockIn) {
+            p1Index--;
+            beep.play();
+            if(p1Index < 0) p1Index = 2;
+        } else if(inputManager->isAttack1(code)) {
+            if(p1LockIn && p2LockIn) {
+                GPlayState::Instance()->SetP1Type(p1Index);
+                GPlayState::Instance()->SetP2Type(p2Index);
+                game->ChangeState(GPlayState::Instance());
+            }
+            p1LockIn = true;
+        } else if(inputManager->isDash1(code)) {
+            p1LockIn = false;
+        } else if(inputManager->isAttack2(code)) {
+            if(p1LockIn && p2LockIn) {
+                GPlayState::Instance()->SetP1Type(p1Index);
+                GPlayState::Instance()->SetP2Type(p2Index);
+                GPlayState::Instance()->music = music;
+                game->PushState(GPlayState::Instance());
+            }
+            p2LockIn = true;
+        } else if(inputManager->isDash2(code)) {
+            p2LockIn = false;
         }
     }
 }
@@ -160,7 +160,7 @@ void GCharacterSelectState::Update(Engine *game)
 void GCharacterSelectState::Draw(Engine *game) 
 {
     game->window.draw(bg);
-    
+
     p1Marker.setPosition((p1Index * 360) + 146, 87);
     p2Marker.setPosition((p2Index * 360) + 416, 634);
 
@@ -176,7 +176,7 @@ void GCharacterSelectState::Draw(Engine *game)
 
         game->window.draw(r1);
         game->window.draw(r2);
-        
+
     }
     if(p2LockIn) {
         sf::RectangleShape r1(sf::Vector2f(240.f, 2.f));

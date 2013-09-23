@@ -56,8 +56,6 @@ private:
     double stepSize;
     cpSpace *space;
 
-	InputManager inputManager;
-
 	Arena arena;
     HUD hud;
 

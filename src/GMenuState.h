@@ -6,7 +6,28 @@
 
 #include "GameState.h"
 
-class GMenuItem;
+class GMenuItem
+{
+public:
+	void Init(char *t, int x, int y, bool vert);
+	void Init(char *t, int x, int y, char *ot, int ox, int oy, bool vert);
+	void Cleanup();
+
+	void Select();
+	void DeSelect();
+
+	void Draw(Engine *game);
+
+    sf::Text otherText;
+
+private:
+    bool verticle;
+    sf::Font font;
+    sf::Color color;
+    sf::Text text;
+
+    bool other;
+};
 
 class GMenuState : public GameState
 {
@@ -31,13 +52,19 @@ protected:
 private:
 	static GMenuState g_MenuState;
 
-	GMenuItem **items;
+    void resetOptionString();
+
+	GMenuItem items[4];
+    GMenuItem optionsMenu[12];
 	int menuIndex;
+    int optionIndex;
 
 	void NextItem();
 	void PrevItem();
 
-    bool instructions;
+    bool instructions,
+         options,
+         newKey;
 
     sf::Font font;
     sf::Color color;
@@ -48,32 +75,6 @@ private:
 
     sf::SoundBuffer buffer;
     sf::Sound beep;
-};
-
-
-typedef void (*CallbackFunc)(Engine*);
-
-class GMenuItem
-{
-public:
-	void Init(char *t, int X, int Y, void (*e)(Engine*));
-	void Cleanup();
-
-	void Select();
-	void DeSelect();
-
-	void Activate(Engine *game);
-
-	void Draw(Engine *game);
-
-private:
-	int x, y;
-
-    sf::Font font;
-    sf::Color color;
-    sf::Text text;
-
-	CallbackFunc callback;
 };
 
 #endif

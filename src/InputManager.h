@@ -8,20 +8,72 @@
 class InputManager
 {
 public:
-	InputManager() { };
-	InputManager(Character *c1);
-	InputManager(Character *c1, Character *c2);
+	InputManager();
+    void addPlayer(Character *p);
 
-	void eventUpdate(int keyCode, bool state);
-	void Update();
+    unsigned int convert(unsigned int code, sf::Event::EventType type, unsigned int id = 0, int pos = 0);
+
+    bool isUp1(unsigned int code);
+    bool isDown1(unsigned int code);
+    bool isLeft1(unsigned int code);
+    bool isRight1(unsigned int code);
+    bool isAttack1(unsigned int code);
+    bool isDash1(unsigned int code);
+
+    bool isUp2(unsigned int code);
+    bool isDown2(unsigned int code);
+    bool isLeft2(unsigned int code);
+    bool isRight2(unsigned int code);
+    bool isAttack2(unsigned int code);
+    bool isDash2(unsigned int code);
+
+    void setUp1(unsigned int code);
+    void setDown1(unsigned int code);
+    void setLeft1(unsigned int code);
+    void setRight1(unsigned int code);
+    void setAttack1(unsigned int code);
+    void setDash1(unsigned int code);
+
+    void setUp2(unsigned int code);
+    void setDown2(unsigned int code);
+    void setLeft2(unsigned int code);
+    void setRight2(unsigned int code);
+    void setAttack2(unsigned int code);
+    void setDash2(unsigned int code);
+
+	void keyUpdate(unsigned int code, bool state);
+	void mouseUpdate(unsigned int code, bool state);
+	void joystickButtonUpdate(unsigned int id, unsigned int code, bool state);
+	void joystickMoveUpdate(unsigned int id, unsigned int code, int pos);
+
+	void playStateUpdate();
+
+    char *SFKeyToString(unsigned int code);
+
+    char *up1String();
+    char *down1String();
+    char *left1String();
+    char *right1String();
+    char *attack1String();
+    char *dash1String();
+
+    char *up2String();
+    char *down2String();
+    char *left2String();
+    char *right2String();
+    char *attack2String();
+    char *dash2String();
+
+    void loadKeys();
+    void saveKeys();
 
 private:
     void init();
-    void changeState(int key, bool state);
+    void update(unsigned int code, bool state);
 
 	Character *player1;
 	Character *player2;
-    bool p2;
+    bool p1, p2;
 
 	bool	up1, down1,
 			left1, right1,
@@ -31,12 +83,12 @@ private:
             attack2, dash2,
 			esc;
 
-	int 	upKey1, downKey1,
-			leftKey1, rightKey1,
-            attackKey1, dashKey1,
-	        upKey2, downKey2,
-			leftKey2, rightKey2,
-            attackKey2, dashKey2;
+	unsigned int 	upKey1, downKey1,
+			        leftKey1, rightKey1,
+                    attackKey1, dashKey1,
+	                upKey2, downKey2,
+			        leftKey2, rightKey2,
+                    attackKey2, dashKey2;
 };
 
 #endif
